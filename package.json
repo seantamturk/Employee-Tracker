@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/seantamturk/Employee-Tracker#readme",
   "dependencies": {
-    "inquirer": "^9.2.0",
+    "inquirer": "^8.2.4",
     "mysql2": "^3.2.4"
   }
 }
