@@ -20,7 +20,8 @@ function start() {
                 'View all departments',
                 'View all roles',
                 'View all employees',
-                'Add a department'
+                'Add a department',
+                'Add a role'
             ]
         }
     ])
@@ -47,11 +48,15 @@ function start() {
                         console.table(results);
                         connection.end();
                     });
+                    
                     break;
                 case 'Add a department':
                     addDepartment();
                     break;
 
+                case 'Add a role':
+                    addRole();
+                    break;
 
 
             }
@@ -74,6 +79,31 @@ function addDepartment() {
                 (err, res) => {
                     if (err) throw err;
                     console.log(res.affectedRows + ' new department has been succesfully created!');
+                }
+            )
+
+            console.log('QUERY', query.sql);
+        })
+        .then(() => {
+            start();
+        })
+}
+function addRole() {
+    inquirer.prompt({
+        name: 'role_name',
+        type: 'input',
+        message: 'what is the role name?'
+    })
+        .then(answers => {
+            const { role_name } = answers;
+
+            let query = connection.query(
+                'INSERT INTO role SET ?', {
+                name: role_name
+            },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(res.affectedRows + ' new role has been succesfully created!');
                 }
             )
 
