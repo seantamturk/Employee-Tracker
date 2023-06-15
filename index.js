@@ -1,117 +1,72 @@
-const mysql = require('mysql2');
-const inquirer = require('inquirer');
+const inquirer = require("inquirer");
+const { viewAllDepartments, viewAllRoles, viewAllEmployees } = require("./db/db");
+const {
+  addDepartment,
+  addRole,
+  addEmployee,
+  updateEmployeeRole,
+} = require("./prompts/inquirerPrompts");
 
-// create a connection to the database
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'employee_tracker'
-});
+async function start() {
+  const { option } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "option",
+      message: "What would you like to do?",
+      choices: [
+        "View all departments",
+        "View all roles",
+        "View all employees",
+        "Add a department",
+        "Add a role",
+        "Add an employee",
+        "Update an employee role",
+        "Quit",
+      ],
+    },
+  ]);
+//*Query
+  switch (option) {
+    case "View all departments":
+      const departments = await viewAllDepartments();
+      console.table(departments);
+      break;
 
-// prompt the user to select an option
-function start() {
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'option',
-            message: 'What would you like to do?',
-            choices: [
-                'View all departments',
-                'View all roles',
-                'View all employees',
-                'Add a department',
-                'Add a role'
-            ]
-        }
-    ])
-        .then(answer => {
-            // run the appropriate SQL query based on the user's choice
-            switch (answer.option) {
-                case 'View all departments':
-                    connection.query('SELECT * FROM department', (err, results) => {
-                        if (err) throw err;
-                        console.table(results);
-                        connection.end();
-                    });
-                    break;
-                case 'View all roles':
-                    connection.query('SELECT * FROM role', (err, results) => {
-                        if (err) throw err;
-                        console.table(results);
-                        connection.end();
-                    });
-                    break;
-                case 'View all employees':
-                    connection.query('SELECT * FROM employee', (err, results) => {
-                        if (err) throw err;
-                        console.table(results);
-                        connection.end();
-                    });
-                    
-                    break;
-                case 'Add a department':
-                    addDepartment();
-                    break;
+    case "View all roles":
+      const roles = await viewAllRoles();
+      console.table(roles);
+      break;
 
-                case 'Add a role':
-                    addRole();
-                    break;
+    case "View all employees":
+      const employees = await viewAllEmployees();
+      console.table(employees);
+      break;
+//*POST
+    case "Add a department":
+      await addDepartment();
+      console.log("Department added successfully!");
+      break;
 
+    case "Add a role":
+      await addRole();
+      console.log("Role added successfully!");
+      break;
 
-            }
-        });
-}
+    case "Add an employee":
+      await addEmployee();
+      console.log("Employee added successfully!");
+      break;
 
-function addDepartment() {
-    inquirer.prompt({
-        name: 'dept_name',
-        type: 'input',
-        message: 'what is the dept name?'
-    })
-        .then(answers => {
-            const { dept_name } = answers;
+    case "Update an employee role":
+      await updateEmployeeRole();
+      console.log("Employee role updated successfully!");
+      break;
 
-            let query = connection.query(
-                'INSERT INTO department SET ?', {
-                name: dept_name
-            },
-                (err, res) => {
-                    if (err) throw err;
-                    console.log(res.affectedRows + ' new department has been succesfully created!');
-                }
-            )
+    case "Quit":
+      process.exit(0);
+  }
 
-            console.log('QUERY', query.sql);
-        })
-        .then(() => {
-            start();
-        })
-}
-function addRole() {
-    inquirer.prompt({
-        name: 'role_name',
-        type: 'input',
-        message: 'what is the role name?'
-    })
-        .then(answers => {
-            const { role_name } = answers;
-
-            let query = connection.query(
-                'INSERT INTO role SET ?', {
-                name: role_name
-            },
-                (err, res) => {
-                    if (err) throw err;
-                    console.log(res.affectedRows + ' new role has been succesfully created!');
-                }
-            )
-
-            console.log('QUERY', query.sql);
-        })
-        .then(() => {
-            start();
-        })
+  start(); // Restart the prompt sequence after finishing a task
 }
 
 start();
